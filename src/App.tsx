@@ -4,6 +4,8 @@ import DeckGL from '@deck.gl/react/typed';
 import {GeoJsonLayer, IconLayer} from '@deck.gl/layers/typed';
 
 import maplibregl from 'maplibre-gl';
+import maplibreglWorker from 'maplibre-gl/dist/maplibre-gl-csp-worker';
+
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './App.css';
 
@@ -15,6 +17,8 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+
+(maplibregl as any).workerClass = maplibreglWorker;
 
 const ICON_MAPPING = {
   marker: {x: 0, y: 0, width: 512, height: 512, mask: true}
