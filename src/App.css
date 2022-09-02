@@ -1,0 +1,33 @@
+.App {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+.search-container, .search-div {
+  display: block;
+}
+
+.search-div {
+  padding: 2rem;
+  padding-bottom: 2.8rem;
+}
+
+.search-container {
+  position: absolute;
+  bottom: 0;
+  width: 100vw;
+  background-color: white;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  -webkit-box-shadow: -1px -11px 30px -3px rgba(0,0,0,0.53); 
+  box-shadow: -1px -11px 30px -3px rgba(0,0,0,0.53);
+}
+
+.loading-overlay {
+  position: absolute;
+  z-index: 99999;
+  height: 100vh;
+  width: 100vw;
+  background-color: rgba(0,0,0,0.8);
+}
