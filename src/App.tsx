@@ -22,6 +22,8 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 
+import Openrouteservice from 'openrouteservice-js'
+
 //@ts-ignore
 maplibregl.workerClass = maplibreglWorker;
 
@@ -47,10 +49,23 @@ const App = () => {
   const [currentPath, setCurrentPath] = React.useState<number>(0);
   const [possibleRoutes, setPossibleRoutes] = React.useState<any[]>([]);
 
+  const [srcTricycleRoute, setSrcTricycleRoutes] = React.useState<any>();
+  const [destTricycleRoute, setDestTricycleRoutes] = React.useState<any>();
+
+  const jeepneyRoutesOnly = React.useMemo(() => {
+    if (possibleRoutes.length === 0) {
+      return [];
+    }
+    const output = { ...possibleRoutes[currentPath] }
+    output.features = output.features.filter((feature: any) => feature.geometry.type !== 'Polygon')
+
+    return output;
+  }, [possibleRoutes, currentPath])
+
   const pathLayer = React.useMemo(() => {
     return new GeoJsonLayer({
       id: 'jeep-layer',
-      data: possibleRoutes[currentPath] as any,
+      data: jeepneyRoutesOnly,
       pickable: true,
       extruded: true,
       pointType: 'circle',
@@ -60,9 +75,49 @@ const App = () => {
       getLineColor: [0, 176, 255, 255],
       getPointRadius: 100,
       getLineWidth: 0.5,
-      getElevation: 30
+      getElevation: 100,
+      stroked: true,
+      lineCapRounded: true,
+      lineJointRounded: true
     });
-  }, [possibleRoutes, currentPath]);
+  }, [jeepneyRoutesOnly]);
+
+  const srcTricycleLayer = React.useMemo(() => {
+    return new GeoJsonLayer({
+      id: 'src-tricycle-layer',
+      data: srcTricycleRoute,
+      pickable: true,
+      extruded: true,
+      pointType: 'circle',
+      lineWidthScale: 20,
+      lineWidthMinPixels: 2,
+      getFillColor: [160, 160, 180, 200],
+      getLineColor: [52, 168, 83, 255],
+      getPointRadius: 100,
+      getLineWidth: 0.5,
+      getElevation: 100,
+      stroked: true
+    });
+  }, [srcTricycleRoute]);
+
+  const destTricycleLayer = React.useMemo(() => {
+    return new GeoJsonLayer({
+      id: 'dest-tricycle-layer',
+      data: destTricycleRoute,
+      pickable: true,
+      extruded: true,
+      pointType: 'circle',
+      lineWidthScale: 20,
+      lineWidthMinPixels: 2,
+      getFillColor: [160, 160, 180, 200],
+      getLineColor: [52, 168, 83, 255],
+      getPointRadius: 100,
+      getLineWidth: 0.5,
+      getElevation: 100,
+      stroked: true
+    });
+  }, [destTricycleRoute]);
+
 
   const sourceLayer = React.useMemo(() => {
     return new IconLayer({
@@ -107,6 +162,49 @@ const App = () => {
       getColor: d => [234, 67, 53, 255]
     });
   }, [dest]);
+
+  React.useEffect(() => {
+    if (possibleRoutes.length > 0) {
+      const orsDirections = new Openrouteservice.Directions({ api_key: process.env.REACT_APP_ORS_API });
+      if (possibleRoutes[currentPath].features[0].geometry.type === 'Polygon') {
+        if (src) {
+          orsDirections.calculate({
+            coordinates: [src, possibleRoutes[currentPath].features[1].geometry.coordinates[0]],
+            profile: "driving-car",
+            format: "geojson"
+          })
+          .then((json: any) => {
+              // Add your own result handling here
+              const fixedJson = { ...json }
+              fixedJson.features[0].properties.name = `${possibleRoutes[currentPath].features[0].properties.name} (Tricycle)`
+              setSrcTricycleRoutes(fixedJson);
+            })
+          .catch((err: any) => {
+            console.error(err);
+          });
+        }
+      }
+
+      if (possibleRoutes[currentPath].features[possibleRoutes[currentPath].features.length - 1].geometry.type === 'Polygon') {
+        if (dest) {
+          orsDirections.calculate({
+            coordinates: [possibleRoutes[currentPath].features[possibleRoutes[currentPath].features.length - 2].geometry.coordinates[0], dest],
+            profile: "driving-car",
+            format: "geojson"
+          })
+          .then((json: any) => {
+              // Add your own result handling here
+              const fixedJson = { ...json }
+              fixedJson.features[0].properties.name = `${possibleRoutes[currentPath].features[possibleRoutes[currentPath].features.length - 1].properties.name} (Tricycle)`
+              setDestTricycleRoutes(fixedJson);
+            })
+          .catch((err: any) => {
+            console.error(err);
+          });
+        }
+      }
+    }
+  }, [possibleRoutes, currentPath, src, dest])
 
   React.useEffect(() => {
     setPossibleRoutes([]);
@@ -157,7 +255,7 @@ const App = () => {
         }}
         onViewStateChange={evt => setViewState(evt.viewState)}
         controller={true}
-        layers={[pathLayer, sourceLayer, destinationLayer]}
+        layers={[srcTricycleLayer, destTricycleLayer, sourceLayer, destinationLayer, pathLayer]}
         getTooltip={({object}) => object && (object.properties.name)}
       >
         <Map
@@ -185,7 +283,7 @@ const App = () => {
                 >
                   {possibleRoutes.map((r, i) => {
                     return (
-                      <MenuItem value={i} key={`possible-route-${i}`}>{r.features.map((f: any) => f.properties.name).join(' - ')}</MenuItem>
+                      <MenuItem value={i} key={`possible-route-${i}`}>{r.features.map((f: any) => f.geometry.type === 'Polygon' ? `${f.properties.name} (Tricycle)` : f.properties.name).join(' - ')}</MenuItem>
                     )
                   })}
                 </Select>
