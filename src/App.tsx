@@ -170,7 +170,7 @@ const App = () => {
         if (src) {
           orsDirections.calculate({
             coordinates: [src, possibleRoutes[currentPath].features[1].geometry.coordinates[0]],
-            profile: "driving-car",
+            profile: "cycling-electric",
             format: "geojson"
           })
           .then((json: any) => {
@@ -189,7 +189,7 @@ const App = () => {
         if (dest) {
           orsDirections.calculate({
             coordinates: [possibleRoutes[currentPath].features[possibleRoutes[currentPath].features.length - 2].geometry.coordinates[possibleRoutes[currentPath].features[possibleRoutes[currentPath].features.length - 2].geometry.coordinates.length - 1], dest],
-            profile: "driving-car",
+            profile: "cycling-electric",
             format: "geojson"
           })
           .then((json: any) => {
