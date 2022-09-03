@@ -313,7 +313,7 @@ const App = () => {
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  label="Possible Routes"
+                  label="Suggested Routes (in Priority Order)"
                   value={currentPath.toString()}
                   onChange={handleChange}
                   disabled={possibleRoutes.length === 0}
