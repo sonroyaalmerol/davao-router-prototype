@@ -32,10 +32,10 @@ const Geocoder = (props: GeocoderProps) => {
   
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12}>
+      <Grid item md={6} xs={12}>
         <GeocoderField label="Source" onCoordinateChange={setSrc} />
       </Grid>
-      <Grid item xs={12}>
+      <Grid item md={6} xs={12}>
         <GeocoderField label="Destination" onCoordinateChange={setDest} />
       </Grid>
     </Grid>

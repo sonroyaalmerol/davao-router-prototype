@@ -31,6 +31,17 @@ const ICON_MAPPING = {
   marker: {x: 0, y: 0, width: 512, height: 512, mask: true}
 };
 
+const PRIORITY_LIST = [
+  {
+    name: 'Distance',
+    value: 'DISTANCE'
+  },
+  {
+    name: 'Fare/Number of Transfers',
+    value: 'TRANSFERS'
+  }
+]
+
 const App = () => {
   const [viewState, setViewState] = React.useState<Partial<ViewState> & {
     bounds?: mapboxgl.LngLatBoundsLike | undefined;
@@ -48,6 +59,7 @@ const App = () => {
 
   const [currentPath, setCurrentPath] = React.useState<number>(0);
   const [possibleRoutes, setPossibleRoutes] = React.useState<any[]>([]);
+  const [priority, setPriority] = React.useState('TRANSFERS');
 
   const [srcTricycleRoute, setSrcTricycleRoutes] = React.useState<any>();
   const [destTricycleRoute, setDestTricycleRoutes] = React.useState<any>();
@@ -164,6 +176,8 @@ const App = () => {
   }, [dest]);
 
   React.useEffect(() => {
+    setSrcTricycleRoutes(undefined);
+    setDestTricycleRoutes(undefined);
     if (possibleRoutes.length > 0) {
       const orsDirections = new Openrouteservice.Directions({ api_key: process.env.REACT_APP_ORS_API });
       if (possibleRoutes[currentPath].features[0].geometry.type === 'Polygon') {
@@ -216,7 +230,7 @@ const App = () => {
       })
     } else if (src && dest) {
       setLoading(true);
-      fetch(`${process.env.REACT_APP_BACKEND_URL}/find?src=${src[1]},${src[0]}&dest=${dest[1]},${dest[0]}`)
+      fetch(`${process.env.REACT_APP_BACKEND_URL}/find?src=${src[1]},${src[0]}&dest=${dest[1]},${dest[0]}&priority=${priority}`)
         .then((i) => i.json())
         .then((res: any[]) => {
           if (res?.length > 0) {
@@ -229,10 +243,14 @@ const App = () => {
           setLoading(false);
         });
     }
-  }, [src, dest])
+  }, [src, dest, priority])
 
   const handleChange = (event: SelectChangeEvent) => {
     setCurrentPath(parseInt(event.target.value));
+  };
+
+  const handlePriorityChange = (event: SelectChangeEvent) => {
+    setPriority(event.target.value);
   };
 
   return (
@@ -269,6 +287,25 @@ const App = () => {
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <Geocoder onSourceChange={setSrc} onDestinationChange={setDest} />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel id="priority-label">Priority</InputLabel>
+                <Select
+                  labelId="priority-label"
+                  id="priority"
+                  label="Priority"
+                  value={priority}
+                  onChange={handlePriorityChange}
+                  disabled={PRIORITY_LIST.length === 0}
+                >
+                  {PRIORITY_LIST.map((p) => {
+                    return (
+                      <MenuItem value={p.value} key={`priority-${p.value}`}>{p.name}</MenuItem>
+                    )
+                  })}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12}>
               <FormControl fullWidth disabled={possibleRoutes.length === 0}>
