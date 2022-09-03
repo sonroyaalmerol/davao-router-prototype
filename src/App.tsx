@@ -309,7 +309,7 @@ const App = () => {
             </Grid>
             <Grid item xs={12}>
               <FormControl fullWidth disabled={possibleRoutes.length === 0}>
-                <InputLabel id="demo-simple-select-label">Possible Routes</InputLabel>
+                <InputLabel id="demo-simple-select-label">Suggested Routes (in Priority Order)</InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
