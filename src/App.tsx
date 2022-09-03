@@ -188,7 +188,7 @@ const App = () => {
       if (possibleRoutes[currentPath].features[possibleRoutes[currentPath].features.length - 1].geometry.type === 'Polygon') {
         if (dest) {
           orsDirections.calculate({
-            coordinates: [possibleRoutes[currentPath].features[possibleRoutes[currentPath].features.length - 2].geometry.coordinates[0], dest],
+            coordinates: [possibleRoutes[currentPath].features[possibleRoutes[currentPath].features.length - 2].geometry.coordinates[possibleRoutes[currentPath].features[possibleRoutes[currentPath].features.length - 2].geometry.coordinates.length - 1], dest],
             profile: "driving-car",
             format: "geojson"
           })
