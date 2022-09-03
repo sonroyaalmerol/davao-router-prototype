@@ -33,12 +33,12 @@ const ICON_MAPPING = {
 
 const PRIORITY_LIST = [
   {
-    name: 'Distance',
-    value: 'DISTANCE'
-  },
-  {
     name: 'Fare/Number of Transfers',
     value: 'TRANSFERS'
+  },
+  {
+    name: 'Distance',
+    value: 'DISTANCE'
   }
 ]
 
